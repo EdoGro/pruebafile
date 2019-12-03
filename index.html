@@ -32,11 +32,11 @@ function saveFileContent() {
                 var myText = document.getElementById('my_text').value;
                 writer.write(myText);
                 writer.onwriteend = function(evt) {
-                $('#message').html('&lt;p&gt;File contents have been written.&lt;br /&gt;&lt;strong&gt;File path:&lt;/strong&gt; ' + fileObject.fullPath + '&lt;/p&gt;');
+                $('#message').html('<p>File contents have been written.<br /><strong>File path</strong> ' + fileObject.fullPath + '</p>');
                     var reader = new FileReader();
                     reader.readAsText(fileObject);
                     reader.onload = function(evt) {
-                        $('#contents').html('&lt;strong&gt;File contents:&lt;/strong&gt; &lt;br /&gt;'
+                        $('#contents').html('<strong>File contents</strong><br />'
                             + evt.target.result);
                     };
                 };
