@@ -7,71 +7,53 @@
     <script type="text/javascript" charset="utf-8">
 	    document.addEventListener('deviceready', onDeviceReady, false);
 
-var logOb;
+function onDeviceReady() 
+           {
+              window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,onFileSystemSuccess, fail);
+            }
+            
+            function onFileSystemSuccess(fileSystem) {
+                fileSystem.root.getFile("readme.txt",
+                {create: true, exclusive: false},
+                gotFileEntry, fail);
+              }
+         	function gotFileEntry(fileEntry) {
+                fileObject = fileEntry;
+                $('#saveFile_btn').on('click', function() {
+                    saveFileContent();
+                });
+            }
 
-function fail(e) {
-	alert("FileSystem Error");
-	alert(e);
-}
+function saveFileContent() {
+                fileObject.createWriter(gotFileWriter, fail);
+            }
+            
+            function gotFileWriter(writer) {
+                var myText = document.getElementById('my_text').value;
+                writer.write(myText);
+                writer.onwriteend = function(evt) {
+                $('#message').html('&lt;p&gt;File contents have been written.&lt;br /&gt;&lt;strong&gt;File path:&lt;/strong&gt; ' + fileObject.fullPath + '&lt;/p&gt;');
+                    var reader = new FileReader();
+                    reader.readAsText(fileObject);
+                    reader.onload = function(evt) {
+                        $('#contents').html('&lt;strong&gt;File contents:&lt;/strong&gt; &lt;br /&gt;'
+                            + evt.target.result);
+                    };
+                };
+            }
 
-function onDeviceReady() {
 
-	window.resolveLocalFileSystemURL(cordova.file.dataDirectory, function(dir) {
-		alert("got main dir",dir);
-		dir.getFile("log.txt", {create:true}, function(file) {
-			alert("got the file", file);
-			logOb = file;
-			alert("App started");			
-		});
-	});
-	
-	document.querySelector("#actionOne").addEventListener("touchend", function(e) {
-		//Ok, normal stuff for actionOne here
-		//
-		//Now log it
-		alert("actionOne fired");
-	}, false);
-
-	document.querySelector("#actionTwo").addEventListener("touchend", function(e) {
-		//Ok, normal stuff for actionTwo here
-		//
-		//Now log it
-		alert("actionTwo fired");
-	}, false);
-
-}
-
-function writeLog(str) {
-	if(!logOb) return;
-	var log = str + " [" + (new Date()) + "]\n";
-	alert("going to log "+log);
-	logOb.createWriter(function(fileWriter) {
-		
-		fileWriter.seek(fileWriter.length);
-		
-		var blob = new Blob([log], {type:'text/plain'});
-		fileWriter.write(blob);
-		alert("ok, in theory i worked");
-	}, fail);
-}
-
-function justForTesting() {
-	logOb.file(function(file) {
-		var reader = new FileReader();
-
-		reader.onloadend = function(e) {
-			alert(this.result);
-		};
-
-		reader.readAsText(file);
-	}, fail);
-
-}
+function fail(error)
+ {
+              	  alert(error.code);
+            }
     </script>
     </head>
     <body>
 <title>FileWriter Example</title>
-		<button id="actionOne">Action One</button>
-		<button id="actionTwo">Action Two</button>
+		<button id="saveFile_btn" value="Save">Action One</button>
+		<input type="text" id="my_text"></input>
+	<div id="message"></div>
+	<div id="contents"></div>
     </body>
 </html>
